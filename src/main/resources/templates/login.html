@@ -1,0 +1,25 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:form="http://www.springframework.org/tags/form">
+
+<head>
+    <title>Login</title>
+</head>
+
+<body>
+    <h2>Вход в систему</h2>
+
+    <form:form method="post" modelAttribute="loginForm" action="/login">
+        <div>
+            <form:label path="username">Имя пользователя:</form:label>
+            <form:input path="username" />
+            <form:errors path="username" cssClass="error" />
+        </div>
+        <div>
+            <form:label path="password">Пароль:</form:label>
+            <form:password path="password" />
+            <form:errors path="password" cssClass="error" />
+        </div>
+        <button type="submit">Войти</button>
+    </form:form>
+</body>
+
+</html>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="1" author="admin">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="roles"/>
+            </not>
+        </preConditions>
+        <createTable tableName="roles">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="role_name" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="admin">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="users"/>
+            </not>
+        </preConditions>
+        <createTable tableName="users">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(100)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="admin">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user_roles"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user_roles">
+            <column name="user_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="user_roles" columnNames="user_id, role_id" constraintName="pk_user_roles"/>
+        <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="user_id" referencedTableName="users" referencedColumnNames="id" constraintName="fk_userroles_users" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="role_id" referencedTableName="roles" referencedColumnNames="id" constraintName="fk_userroles_roles" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="4" author="admin">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="guilds"/>
+            </not>
+        </preConditions>
+        <createTable tableName="guilds">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="5" author="admin">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="players"/>
+            </not>
+        </preConditions>
+        <createTable tableName="players">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="level" type="INTEGER" defaultValueNumeric="1"/>
+            <column name="guild_id" type="INT"/>
+            <column name="banned_until" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="players" baseColumnNames="guild_id" referencedTableName="guilds" referencedColumnNames="id" constraintName="fk_players_guilds" onDelete="SET NULL"/>
+    </changeSet>
+
+    <changeSet id="6" author="admin">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="audit_logs"/>
+            </not>
+        </preConditions>
+        <createTable tableName="audit_logs">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="INT"/>
+            <column name="action" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entity" type="VARCHAR(100)"/>
+            <column name="entity_id" type="INT"/>
+            <column name="timestamp" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="details" type="TEXT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="audit_logs" baseColumnNames="user_id" referencedTableName="users" referencedColumnNames="id" constraintName="fk_auditlogs_users" onDelete="SET NULL"/>
+    </changeSet>
+
+    <changeSet id="7" author="admin">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="bans"/>
+            </not>
+        </preConditions>
+        <createTable tableName="bans">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="player_id" type="INT"/>
+            <column name="banned_by" type="INT"/>
+            <column name="reason" type="TEXT"/>
+            <column name="banned_from" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="banned_until" type="TIMESTAMP"/>
+            <column name="is_permanent" type="BOOLEAN" defaultValueBoolean="false"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="bans" baseColumnNames="player_id" referencedTableName="players" referencedColumnNames="id" constraintName="fk_bans_players" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="bans" baseColumnNames="banned_by" referencedTableName="users" referencedColumnNames="id" constraintName="fk_bans_users" onDelete="SET NULL"/>
+    </changeSet>
+
+</databaseChangeLog>
